@@ -22,14 +22,6 @@ data:
   # separate mounted file or secret.
   # ALERT_COMPONENT_SETTINGS_SETTINGS_PROXY_PASSWORD:
 
-  # Provider Settings
-
-  # -- Hub Provider Settings
-
-  #ALERT_PROVIDER_BLACKDUCK_BLACKDUCK_URL:
-  #ALERT_PROVIDER_BLACKDUCK_BLACKDUCK_API_KEY:
-  #ALERT_PROVIDER_BLACKDUCK_BLACKDUCK_TIMEOUT:
-
   # Component Settings
 
   # -- Override

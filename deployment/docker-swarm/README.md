@@ -471,14 +471,11 @@ Examples:
 ### Environment Variable Classifications
 There are certain classifications with the environment variables expressed by a specific naming convention:
 ```ALERT_<CLASSIFICATION>_<ITEM_NAME>_<CONFIGURATION_PROPERTY>```
-- Provider:  The environment variables to configure these components start with ALERT_PROVIDER_
 - Channel: The environment variables to configure these components start with ALERT_CHANNEL_
 - Component: The environment variables to configure these components start with ALERT_COMPONENT_
 
 Examples:
 These are some examples of what can be set. the blackduck-alert.env file has a more comprehensive list.
-- Provider: 
-    - ALERT_PROVIDER_BLACKDUCK_BLACKDUCK_URL= The URL for the Black Duck server.
 - Channel:
     - ALERT_CHANNEL_JIRA_CLOUD_JIRA_CLOUD_URL= The URL for the Jira Cloud server.
     - ALERT_CHANNEL_EMAIL_MAIL_SMTP_HOST= The SMTP host used to send email messages.
