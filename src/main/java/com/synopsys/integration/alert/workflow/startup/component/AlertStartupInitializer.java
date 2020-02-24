@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -39,10 +40,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import com.synopsys.integration.alert.common.descriptor.Descriptor;
 import com.synopsys.integration.alert.common.descriptor.DescriptorKey;
 import com.synopsys.integration.alert.common.descriptor.DescriptorMap;
 import com.synopsys.integration.alert.common.descriptor.accessor.SettingsUtility;
 import com.synopsys.integration.alert.common.enumeration.ConfigContextEnum;
+import com.synopsys.integration.alert.common.enumeration.DescriptorType;
 import com.synopsys.integration.alert.common.exception.AlertException;
 import com.synopsys.integration.alert.common.persistence.accessor.ConfigurationAccessor;
 import com.synopsys.integration.alert.common.persistence.accessor.DescriptorAccessor;
@@ -134,19 +137,28 @@ public class AlertStartupInitializer extends StartupComponent {
             logger.info(LINE_DIVIDER);
             logger.info("  Starting Descriptor Initialization...");
             try {
-                List<DefinedFieldModel> fieldsForDescriptor = descriptorAccessor.getFieldsForDescriptor(descriptorKey, ConfigContextEnum.GLOBAL).stream()
-                                                                  .sorted(Comparator.comparing(DefinedFieldModel::getKey))
-                                                                  .collect(Collectors.toList());
-                List<ConfigurationModel> foundConfigurationModels = fieldConfigurationAccessor.getConfigurationByDescriptorKeyAndContext(descriptorKey, ConfigContextEnum.GLOBAL);
+                Optional<Descriptor> descriptor = descriptorMap.getDescriptor(descriptorKey);
+                boolean isProviderDescriptor = descriptor
+                                                   .map(Descriptor::getType)
+                                                   .filter(type -> type == DescriptorType.PROVIDER)
+                                                   .isPresent();
 
-                Map<String, ConfigurationFieldModel> existingConfiguredFields = new HashMap<>();
-                foundConfigurationModels.forEach(config -> existingConfiguredFields.putAll(config.getCopyOfKeyToFieldMap()));
+                if (isProviderDescriptor) {
+                    logger.info("    Provider descriptor found.  Environment variable support disabled.");
+                } else {
+                    List<DefinedFieldModel> fieldsForDescriptor = descriptorAccessor.getFieldsForDescriptor(descriptorKey, ConfigContextEnum.GLOBAL).stream()
+                                                                      .sorted(Comparator.comparing(DefinedFieldModel::getKey))
+                                                                      .collect(Collectors.toList());
+                    List<ConfigurationModel> foundConfigurationModels = fieldConfigurationAccessor.getConfigurationByDescriptorKeyAndContext(descriptorKey, ConfigContextEnum.GLOBAL);
 
-                Set<ConfigurationFieldModel> configurationModels = createFieldModelsFromDefinedFields(descriptorKey, fieldsForDescriptor, existingConfiguredFields);
-                logConfiguration(configurationModels);
-                updateConfigurationFields(descriptorKey, overwriteCurrentConfig, foundConfigurationModels, configurationModels);
+                    Map<String, ConfigurationFieldModel> existingConfiguredFields = new HashMap<>();
+                    foundConfigurationModels.forEach(config -> existingConfiguredFields.putAll(config.getCopyOfKeyToFieldMap()));
 
-            } catch (IllegalArgumentException | SecurityException | AlertException ex) {
+                    Set<ConfigurationFieldModel> configurationModels = createFieldModelsFromDefinedFields(descriptorKey, fieldsForDescriptor, existingConfiguredFields);
+                    logConfiguration(configurationModels);
+                    updateConfigurationFields(descriptorKey, overwriteCurrentConfig, foundConfigurationModels, configurationModels);
+                }
+            } catch (IllegalArgumentException | SecurityException | NoSuchElementException | AlertException ex) {
                 logger.error("error initializing descriptor", ex);
             } finally {
                 logger.info("  Finished Descriptor Initialization...");
