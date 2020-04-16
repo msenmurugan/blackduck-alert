@@ -14,6 +14,10 @@ alert:
       memory: "2560Mi"
     requests:
       memory: "2560Mi"
+  persistentVolumeClaimName: ""
+  claimSize: "5G"
+  storageClass: ""
+  volumeName: ""
   nodeSelector: {}
   tolerations: []
   affinity: {}
@@ -37,10 +41,6 @@ cfssl:
 
 # Storage configurations
 enablePersistentStorage: true
-persistentVolumeClaimName: ""
-pvcSize: "5G"
-storageClassName: ""
-volumeName: ""
 
 # image pull secret to download images (mostly applicable for air gapped customers)
 imagePullSecrets: [] # array of strings delimited by comma

@@ -147,8 +147,8 @@ metadata:
   name: {{ .Release.Name }}-pvc
   namespace: {{ .Release.Namespace }}
 spec:
-  {{ if .Values.storageClassName -}}
-  storageClassName: {{ .Values.storageClassName }}
+  {{ if .Values.storageClass -}}
+  storageClass: {{ .Values.storageClass }}
   {{ end -}}
   {{ if .Values.volumeName -}}
   volumeName: {{ .Values.volumeName }}
@@ -157,7 +157,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: {{ .Values.pvcSize }}
+      storage: {{ .Values.claimSize }}
 ---
 {{- end }}
 
