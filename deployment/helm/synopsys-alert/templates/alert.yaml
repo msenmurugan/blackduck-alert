@@ -142,6 +142,7 @@ kind: PersistentVolumeClaim
 metadata:
   labels:
     app: alert
+    component: alert
     name: {{ .Release.Name }}
   name: {{ .Release.Name }}-pvc
   namespace: {{ .Release.Namespace }}
